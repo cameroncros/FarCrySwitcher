@@ -10,7 +10,7 @@ class FarCrySwitcher:
     def __init__(self):
         self.saves = []
 
-        self.current_save = None
+        self.current_save_name = None
         self.current_save_exists = False
         self.find_all_saves()
         self.read_current_save()
@@ -35,30 +35,28 @@ class FarCrySwitcher:
 
     def read_current_save(self):
         self.current_save_exists = False
-        self.current_save = None
+        self.current_save_name = None
         save_dir = os.path.join(PATH, DIR)
         if not os.path.exists(save_dir):
             return
-        if not os.path.isdir(save_dir):
-            shutil.rmtree(save_dir)
 
         self.current_save_exists = True
         current_save_path = os.path.join(PATH, DIR, "save_name")
         # noinspection PyBroadException
         try:
             with open(current_save_path, 'r') as file:
-                self.current_save = file.read()
+                self.current_save_name = file.read()
         except:
             pass
 
     def get_current_save(self):
-        return self.current_save
+        return self.current_save_name
 
     def saveas(self, save_name):
         current_save_path = os.path.join(PATH, DIR, "save_name")
         with open(current_save_path, 'w') as file:
             file.write(save_name)
-        self.current_save = save_name
+        self.current_save_name = save_name
         self.save()
         self.load(save_name)
 
@@ -70,19 +68,20 @@ class FarCrySwitcher:
         self.load(save_name)
 
     def save(self):
-        if self.current_save is None:
+        if self.current_save_exists and self.current_save_name is None:
             raise Exception("Current save needs to be saved first")
 
-        current_save_path = os.path.join(PATH, self.current_save)
+        current_save_path = os.path.join(PATH, self.current_save_name)
         if os.path.exists(current_save_path):
             timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
 
-            backupfile = os.path.join(PATH, self.current_save + "_" + timestamp)
+            backupfile = os.path.join(PATH, self.current_save_name + "_" + timestamp)
             shutil.make_archive(backupfile, 'zip', current_save_path)
             shutil.rmtree(current_save_path)
 
         shutil.copytree(os.path.join(PATH, DIR), current_save_path)
         self.find_all_saves()
+        self.get_current_save()
 
     def load(self, save_name):
         if not os.path.exists(os.path.join(PATH, save_name)):
