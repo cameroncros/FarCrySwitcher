@@ -1,7 +1,9 @@
 import os
 import shutil
 import datetime
+import subprocess
 
+GAME_EXE = r"E:\Ubisoft\Ubisoft Game Launcher\games\Far Cry New Dawn\bin\FarCryNewDawn.exe"
 PATH = r"E:\Ubisoft\Ubisoft Game Launcher\savegames"
 DIR = "ba85dcb8-2355-46b0-a192-3fc2ca7a4b77"
 
@@ -154,7 +156,9 @@ def main():
         print("Options:")
         print("1) Save game")
         print("2) Load game")
-        print("3) Exit")
+        print("3) Launch game")
+        print("4) Open Saves Dir")
+        print("5) Exit")
         # noinspection PyBroadException
         try:
             choice = int(input("> "))
@@ -163,6 +167,10 @@ def main():
             elif choice == 2:
                 load()
             elif choice == 3:
+                subprocess.call([GAME_EXE])
+            elif choice == 4:
+                subprocess.call(["explorer.exe", PATH])
+            elif choice == 5:
                 print("Goodbye :D")
                 return
         except:
