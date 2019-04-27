@@ -9,7 +9,9 @@ DIR = "ba85dcb8-2355-46b0-a192-3fc2ca7a4b77"
 class FarCrySwitcher:
     def __init__(self):
         self.saves = []
+
         self.current_save = None
+        self.current_save_exists = False
         self.find_all_saves()
         self.read_current_save()
 
@@ -32,8 +34,16 @@ class FarCrySwitcher:
         return self.saves
 
     def read_current_save(self):
-        current_save_path = os.path.join(PATH, DIR, "save_name")
+        self.current_save_exists = False
         self.current_save = None
+        save_dir = os.path.join(PATH, DIR)
+        if not os.path.exists(save_dir):
+            return
+        if not os.path.isdir(save_dir):
+            shutil.rmtree(save_dir)
+
+        self.current_save_exists = True
+        current_save_path = os.path.join(PATH, DIR, "save_name")
         # noinspection PyBroadException
         try:
             with open(current_save_path, 'r') as file:
@@ -55,7 +65,8 @@ class FarCrySwitcher:
     def switch_save(self, save_name):
         if save_name not in self.saves:
             raise Exception("Invalid Save")
-        self.save()
+        if self.current_save_exists:
+            self.save()
         self.load(save_name)
 
     def save(self):
@@ -76,8 +87,10 @@ class FarCrySwitcher:
     def load(self, save_name):
         if not os.path.exists(os.path.join(PATH, save_name)):
             raise Exception("Save directory does not exist")
-        shutil.rmtree(os.path.join(PATH, DIR))
-        shutil.copytree(os.path.join(PATH, save_name), os.path.join(PATH, DIR))
+        save_dir = os.path.join(PATH, DIR)
+        if os.path.exists(save_dir):
+            shutil.rmtree(save_dir)
+        shutil.copytree(os.path.join(PATH, save_name), save_dir)
         self.read_current_save()
 
 
